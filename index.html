@@ -246,6 +246,157 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
     }
+
+    /* SURPRISE BUTTON */
+    #surpriseBtn {
+      display: none;
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 18px 36px;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      color: #333;
+      box-shadow: 0 10px 30px rgba(0,0,0,.3);
+      animation: popIn 0.5s ease 1s forwards, gentlePulse 2s ease-in-out 1.5s infinite;
+      opacity: 0;
+      z-index: 10001;
+    }
+
+    #surpriseBtn:hover {
+      background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateX(-50%) scale(0.8); }
+      to { opacity: 1; transform: translateX(-50%) scale(1); }
+    }
+
+    @keyframes gentlePulse {
+      0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+      50% { box-shadow: 0 10px 40px rgba(255,215,0,.6); }
+    }
+
+    /* LANTERNS PAGE */
+    .lanterns-page {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(to bottom, #0a0e27 0%, #1a1f3a 50%, #2d1b3d 100%);
+      z-index: 10002;
+      overflow: hidden;
+    }
+
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .lantern-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .lantern {
+      position: absolute;
+      width: 60px;
+      height: 80px;
+      bottom: -100px;
+      animation: float-up 15s ease-in infinite;
+      filter: drop-shadow(0 0 20px rgba(255,200,100,0.8));
+    }
+
+    @keyframes float-up {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-120vh) translateX(var(--drift));
+        opacity: 0;
+      }
+    }
+
+    .lantern-body {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, #fff4e6 0%, #ffb74d 40%, #ff9800 100%);
+      border-radius: 10px;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(255,255,200,0.8),
+                  0 0 30px rgba(255,200,100,0.6);
+    }
+
+    .lantern-top,
+    .lantern-bottom {
+      width: 70%;
+      height: 8px;
+      background: #8b4513;
+      position: absolute;
+      left: 15%;
+      border-radius: 4px;
+    }
+
+    .lantern-top { top: -4px; }
+    .lantern-bottom { bottom: -4px; }
+
+    .lantern-wire {
+      position: absolute;
+      width: 2px;
+      height: 20px;
+      background: #666;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -24px;
+    }
+
+    .lanterns-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900;
+      color: #fff;
+      text-align: center;
+      text-shadow: 0 0 20px rgba(255,255,255,0.5),
+                   0 0 40px rgba(255,200,100,0.3);
+      z-index: 10;
+      animation: fadeInMessage 2s ease 1s forwards;
+      opacity: 0;
+      letter-spacing: 4px;
+    }
+
+    @keyframes fadeInMessage {
+      to { opacity: 1; }
+    }
   </style>
 </head>
 
@@ -349,6 +500,14 @@
       </div>
       <p class="envelope-instruction">Click the envelope!</p>
     </div>
+    <button id="surpriseBtn">Ok one last surprise ✨</button>
+  </div>
+
+  <!-- LANTERNS PAGE -->
+  <div class="lanterns-page" id="lanternsPage">
+    <div class="stars" id="stars"></div>
+    <div class="lantern-container" id="lanternContainer"></div>
+    <div class="lanterns-message">LASGO</div>
   </div>
 
   <script>
@@ -362,6 +521,10 @@
     const envelopePage = document.getElementById("envelopePage");
     const envelopeContainer = document.getElementById("envelopeContainer");
     const envelope = document.getElementById("envelope");
+    const surpriseBtn = document.getElementById("surpriseBtn");
+    const lanternsPage = document.getElementById("lanternsPage");
+    const lanternContainer = document.getElementById("lanternContainer");
+    const starsContainer = document.getElementById("stars");
 
     /* ---------- CONFETTI ---------- */
     const confettiCanvas = document.getElementById("confettiCanvas");
@@ -475,8 +638,70 @@
       if (!envelopeOpened) {
         envelope.classList.add("open");
         envelopeOpened = true;
+        // Show surprise button after letter appears
+        setTimeout(() => {
+          surpriseBtn.style.display = "block";
+        }, 1000);
       }
     });
+
+    /* ---------- SURPRISE BUTTON ---------- */
+    surpriseBtn.addEventListener("click", () => {
+      envelopePage.style.display = "none";
+      lanternsPage.style.display = "block";
+      createStars();
+      createLanterns();
+    });
+
+    /* ---------- CREATE STARS ---------- */
+    function createStars() {
+      for (let i = 0; i < 150; i++) {
+        const star = document.createElement("div");
+        star.className = "star";
+        const size = Math.random() * 3 + 1;
+        star.style.width = size + "px";
+        star.style.height = size + "px";
+        star.style.left = Math.random() * 100 + "%";
+        star.style.top = Math.random() * 100 + "%";
+        star.style.animationDelay = Math.random() * 3 + "s";
+        starsContainer.appendChild(star);
+      }
+    }
+
+    /* ---------- CREATE LANTERNS ---------- */
+    function createLanterns() {
+      const numLanterns = 30;
+      
+      for (let i = 0; i < numLanterns; i++) {
+        setTimeout(() => {
+          const lantern = document.createElement("div");
+          lantern.className = "lantern";
+          
+          // Random horizontal position
+          lantern.style.left = Math.random() * 100 + "%";
+          
+          // Random delay
+          lantern.style.animationDelay = Math.random() * 5 + "s";
+          
+          // Random drift
+          const drift = (Math.random() - 0.5) * 200;
+          lantern.style.setProperty("--drift", drift + "px");
+          
+          // Random size variation
+          const scale = 0.7 + Math.random() * 0.6;
+          lantern.style.transform = `scale(${scale})`;
+          
+          lantern.innerHTML = `
+            <div class="lantern-wire"></div>
+            <div class="lantern-top"></div>
+            <div class="lantern-body"></div>
+            <div class="lantern-bottom"></div>
+          `;
+          
+          lanternContainer.appendChild(lantern);
+        }, i * 300);
+      }
+    }
   </script>
 </body>
 </html>
