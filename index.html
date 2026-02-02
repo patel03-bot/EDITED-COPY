@@ -30,6 +30,7 @@
       padding: 16px;
     }
 
+    /* FULL-SCREEN CONFETTI CANVAS */
     #confettiCanvas {
       position: fixed;
       inset: 0;
@@ -66,9 +67,13 @@
       width: min(520px, 92%);
       height: 150px;
       margin: 0 auto;
+      touch-action: none;
     }
 
     button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
       padding: 16px 24px;
       font-size: 18px;
       font-weight: 800;
@@ -76,24 +81,22 @@
       border: none;
       cursor: pointer;
       box-shadow: 0 10px 24px rgba(0,0,0,.14);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
       transition: transform .12s ease, background .12s ease;
     }
 
     #yesBtn {
-      position: absolute;
       left: 18%;
-      top: 50%;
-      transform: translateY(-50%);
       background: var(--yes);
-      color: white;
+      color: #fff;
     }
+    #yesBtn:hover { background: var(--yesHover); }
 
     #noBtn {
-      position: absolute;
       left: 62%;
-      top: 50%;
-      transform: translateY(-50%);
       background: #e5e7eb;
+      color: #111827;
     }
 
     .hint {
@@ -108,10 +111,34 @@
       animation: pop .35s ease;
     }
 
+    .result h2 {
+      font-size: clamp(30px, 4.5vw, 46px);
+      margin: 10px 0;
+    }
+
     .fireworks {
       width: min(380px, 90vw);
-      display: block;
       margin: 0 auto;
+      display: block;
+    }
+
+    /* GIFT BUTTON */
+    #giftBtn {
+      position: static;
+      margin-top: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: none;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    #giftBtn:hover {
+      background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     @keyframes pop {
@@ -119,145 +146,337 @@
       to { transform: scale(1); opacity: 1; }
     }
 
-    /* ---------- LETTER PAGE ---------- */
-    #letterPage {
+    /* ENVELOPE PAGE */
+    .envelope-page {
+      display: none;
       position: fixed;
       inset: 0;
-      display: none;
-      place-items: center;
       background: radial-gradient(circle at top, var(--bg2), var(--bg1));
-      z-index: 100;
+      z-index: 10000;
+      place-items: center;
     }
 
-    #envelope {
-      width: 280px;
-      height: 180px;
-      background: white;
-      border-radius: 14px;
+    .envelope-container {
       position: relative;
+      width: min(400px, 85vw);
+      height: min(280px, 60vw);
       cursor: pointer;
-      overflow: hidden;
-      box-shadow: 0 16px 40px rgba(0,0,0,.25);
+      transition: transform 0.3s ease;
     }
 
-    .flap {
-      position: absolute;
-      top: 0;
+    .envelope-container:hover {
+      transform: scale(1.05);
+    }
+
+    .envelope {
+      position: relative;
       width: 100%;
-      height: 50%;
-      background: #f3f4f6;
-      transform-origin: top;
-      transition: transform .6s ease;
+      height: 100%;
+    }
+
+    .envelope-back {
+      position: absolute;
+      width: 100%;
+      height: 70%;
+      background: #c1908d;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .envelope-flap {
+      position: absolute;
+      width: 100%;
+      height: 70%;
+      top: 0;
+      left: 0;
+      transform-origin: top center;
+      transition: transform 0.6s ease;
       z-index: 3;
     }
 
-    .paper {
+    .envelope-flap::before {
+      content: '';
       position: absolute;
-      bottom: -100%;
-      width: 100%;
-      height: 100%;
-      display: grid;
-      place-items: center;
-      font-size: 36px;
+      width: 0;
+      height: 0;
+      border-left: min(200px, 42.5vw) solid transparent;
+      border-right: min(200px, 42.5vw) solid transparent;
+      border-top: min(140px, 30vw) solid #d4a5a3;
+    }
+
+    .envelope.open .envelope-flap {
+      transform: rotateX(-180deg);
+    }
+
+    .letter {
+      position: absolute;
+      width: 90%;
+      height: 85%;
+      top: 5%;
+      left: 5%;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      padding: 40px 30px;
+      z-index: 2;
+      transform: translateY(0);
+      transition: transform 0.6s ease 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(28px, 5vw, 48px);
       font-weight: 900;
       color: #ff3b7a;
-      background: white;
-      transition: bottom .7s ease;
+      text-align: center;
+      line-height: 1.3;
     }
 
-    #envelope.open .flap {
-      transform: rotateX(180deg);
+    .envelope.open .letter {
+      transform: translateY(-120%);
     }
 
-    #envelope.open .paper {
-      bottom: 0;
+    .envelope-instruction {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #666;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
   </style>
 </head>
 
 <body>
-<canvas id="confettiCanvas"></canvas>
+  <canvas id="confettiCanvas"></canvas>
 
-<main class="card">
-  <!-- Husky SVG (unchanged) -->
-  <!-- [SVG OMITTED HERE FOR BREVITY — KEEP YOUR ORIGINAL SVG EXACTLY AS IS] -->
+  <!-- MAIN PAGE -->
+  <main class="card" id="mainPage">
+    <!-- HUSKY WITH HEART -->
+    <svg class="art" viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="furDark" x1="0" x2="1">
+          <stop offset="0" stop-color="#9ca3af"/>
+          <stop offset="1" stop-color="#6b7280"/>
+        </linearGradient>
+        <linearGradient id="furLight" x1="0" x2="1">
+          <stop offset="0" stop-color="#f3f4f6"/>
+          <stop offset="1" stop-color="#e5e7eb"/>
+        </linearGradient>
+        <linearGradient id="heart" x1="0" x2="1">
+          <stop offset="0" stop-color="#ff4d7d"/>
+          <stop offset="1" stop-color="#ff1f68"/>
+        </linearGradient>
+      </defs>
 
-  <h1>Hetanshi will you be my valentine?</h1>
+      <!-- Heart -->
+      <path d="M210 40
+               C210 22 230 18 242 32
+               C254 18 274 22 274 40
+               C274 70 242 86 242 102
+               C242 86 210 70 210 40Z"
+            fill="url(#heart)"/>
 
-  <section class="button-zone" id="zone">
-    <button id="yesBtn">Yes</button>
-    <button id="noBtn">No</button>
-  </section>
+      <!-- Head -->
+      <ellipse cx="160" cy="145" rx="90" ry="80" fill="url(#furDark)"/>
 
-  <div class="hint" id="hint">“No” seems a bit shy 😈</div>
+      <!-- Face mask -->
+      <ellipse cx="160" cy="165" rx="55" ry="45" fill="url(#furLight)"/>
 
-  <section class="result" id="result">
-    <h2>YAY! 🎉</h2>
-    <img class="fireworks"
-      src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExemxpZGtiejNmYXl2N3ZidDlha2JzYWNyeG9wam44bjAxbDlqNG9qZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/rjkJD1v80CjYs/giphy.gif"
-    />
-    <br />
-    <button id="giftBtn" style="background:var(--yes);color:white;">
-      I've got a gift for you 🎁
-    </button>
-  </section>
-</main>
+      <!-- Ears -->
+      <path d="M95 70 L60 20 L120 60 Z" fill="#6b7280"/>
+      <path d="M225 70 L260 20 L200 60 Z" fill="#6b7280"/>
 
-<!-- LETTER PAGE -->
-<div id="letterPage">
-  <div class="card">
-    <h2>💌 Open it</h2>
-    <div id="envelope">
-      <div class="flap"></div>
-      <div class="paper">Dumbass</div>
+      <!-- Inner ears -->
+      <path d="M95 70 L75 35 L110 60 Z" fill="#d1d5db"/>
+      <path d="M225 70 L245 35 L210 60 Z" fill="#d1d5db"/>
+
+      <!-- Eyes -->
+      <circle cx="135" cy="145" r="7"/>
+      <circle cx="185" cy="145" r="7"/>
+
+      <!-- Nose -->
+      <path d="M160 158
+               C154 158 150 162 150 166
+               C150 172 160 176 160 176
+               C160 176 170 172 170 166
+               C170 162 166 158 160 158Z"
+            fill="#111827"/>
+
+      <!-- Smile -->
+      <path d="M160 176
+               C150 186 140 188 130 186"
+            stroke="#111827" stroke-width="3" fill="none"/>
+      <path d="M160 176
+               C170 186 180 188 190 186"
+            stroke="#111827" stroke-width="3" fill="none"/>
+    </svg>
+
+    <h1>Hetanshi will you be my valentine?</h1>
+
+    <section class="button-zone" id="zone">
+      <button id="yesBtn">Yes</button>
+      <button id="noBtn">No</button>
+    </section>
+
+    <!-- HINT -->
+    <div class="hint" id="hint">"No" seems a bit shy 😈</div>
+
+    <section class="result" id="result">
+      <h2>YAY! 🎉</h2>
+      <img
+        class="fireworks"
+        src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExemxpZGtiejNmYXl2N3ZidDlha2JzYWNyeG9wam44bjAxbDlqNG9qZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/rjkJD1v80CjYs/giphy.gif"
+        alt="Meme"
+      />
+      <button id="giftBtn">I have a gift for you 🎁</button>
+    </section>
+  </main>
+
+  <!-- ENVELOPE PAGE -->
+  <div class="envelope-page" id="envelopePage">
+    <div style="text-align: center;">
+      <div class="envelope-container" id="envelopeContainer">
+        <div class="envelope" id="envelope">
+          <div class="envelope-back"></div>
+          <div class="letter">
+            You dumbass! 😝
+          </div>
+          <div class="envelope-flap"></div>
+        </div>
+      </div>
+      <p class="envelope-instruction">Click the envelope!</p>
     </div>
   </div>
-</div>
 
-<script>
-  const zone = document.getElementById("zone");
-  const yesBtn = document.getElementById("yesBtn");
-  const noBtn = document.getElementById("noBtn");
-  const result = document.getElementById("result");
-  const hint = document.getElementById("hint");
+  <script>
+    const zone = document.getElementById("zone");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const result = document.getElementById("result");
+    const hint = document.getElementById("hint");
+    const giftBtn = document.getElementById("giftBtn");
+    const mainPage = document.getElementById("mainPage");
+    const envelopePage = document.getElementById("envelopePage");
+    const envelopeContainer = document.getElementById("envelopeContainer");
+    const envelope = document.getElementById("envelope");
 
-  const confettiCanvas = document.getElementById("confettiCanvas");
-  const confettiInstance = confetti.create(confettiCanvas, { resize: true });
+    /* ---------- CONFETTI ---------- */
+    const confettiCanvas = document.getElementById("confettiCanvas");
 
-  function fullScreenConfetti() {
-    confettiInstance({ particleCount: 300, spread: 140 });
-  }
+    function resizeConfettiCanvas() {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      confettiCanvas.width = Math.floor(window.innerWidth * dpr);
+      confettiCanvas.height = Math.floor(window.innerHeight * dpr);
+      confettiCanvas.style.width = "100vw";
+      confettiCanvas.style.height = "100vh";
+    }
 
-  let yesScale = 1;
-  function growYes() {
-    yesScale += 0.1;
-    yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
-  }
+    resizeConfettiCanvas();
+    window.addEventListener("resize", resizeConfettiCanvas);
+    window.addEventListener("orientationchange", () => setTimeout(resizeConfettiCanvas, 150));
 
-  zone.addEventListener("pointermove", () => growYes());
-  noBtn.addEventListener("click", e => e.preventDefault());
+    const confettiInstance = confetti.create(confettiCanvas, {
+      resize: false,
+      useWorker: true
+    });
 
-  yesBtn.addEventListener("click", () => {
-    zone.style.display = "none";
-    hint.style.display = "none";
-    result.style.display = "block";
-    fullScreenConfetti();
-  });
+    function fullScreenConfetti() {
+      const end = Date.now() + 1600;
 
-  const giftBtn = document.getElementById("giftBtn");
-  const letterPage = document.getElementById("letterPage");
-  const envelope = document.getElementById("envelope");
+      (function frame() {
+        confettiInstance({
+          particleCount: 12,
+          spread: 90,
+          startVelocity: 45,
+          ticks: 180,
+          origin: { x: Math.random(), y: Math.random() * 0.3 }
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
 
-  giftBtn.addEventListener("click", () => {
-    document.querySelector("main").style.display = "none";
-    letterPage.style.display = "grid";
-  });
+      setTimeout(() => {
+        confettiInstance({
+          particleCount: 300,
+          spread: 140,
+          startVelocity: 60,
+          ticks: 220,
+          origin: { x: 0.5, y: 0.55 }
+        });
+      }, 300);
+    }
 
-  envelope.addEventListener("click", () => {
-    envelope.classList.add("open");
-    fullScreenConfetti();
-  });
-</script>
+    /* ---------- YES BUTTON GROWS ---------- */
+    let yesScale = 1;
+    function growYes() {
+      yesScale = Math.min(2.2, yesScale + 0.1);
+      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+    }
+
+    /* ---------- NO BUTTON RUNS AWAY ---------- */
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function moveNo(px, py) {
+      const z = zone.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+
+      let dx = (b.left + b.width / 2) - px;
+      let dy = (b.top + b.height / 2) - py;
+      let mag = Math.hypot(dx, dy) || 1;
+      dx /= mag;
+      dy /= mag;
+
+      let newLeft = (b.left - z.left) + dx * 150;
+      let newTop  = (b.top - z.top) + dy * 150;
+
+      newLeft = clamp(newLeft, 0, z.width - b.width);
+      newTop  = clamp(newTop, 0, z.height - b.height);
+
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top = newTop + "px";
+      noBtn.style.transform = "none";
+
+      growYes();
+    }
+
+    zone.addEventListener("pointermove", e => {
+      const b = noBtn.getBoundingClientRect();
+      const d = Math.hypot(
+        (b.left + b.width / 2) - e.clientX,
+        (b.top + b.height / 2) - e.clientY
+      );
+      if (d < 140) moveNo(e.clientX, e.clientY);
+    });
+
+    noBtn.addEventListener("click", e => e.preventDefault());
+
+    /* ---------- YES CLICK ---------- */
+    yesBtn.addEventListener("click", () => {
+      zone.style.display = "none";
+      hint.style.display = "none";
+      result.style.display = "block";
+      resizeConfettiCanvas();
+      fullScreenConfetti();
+    });
+
+    /* ---------- GIFT BUTTON ---------- */
+    giftBtn.addEventListener("click", () => {
+      mainPage.style.display = "none";
+      envelopePage.style.display = "grid";
+    });
+
+    /* ---------- ENVELOPE CLICK ---------- */
+    let envelopeOpened = false;
+    envelopeContainer.addEventListener("click", () => {
+      if (!envelopeOpened) {
+        envelope.classList.add("open");
+        envelopeOpened = true;
+      }
+    });
+  </script>
 </body>
 </html>
-
