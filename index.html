@@ -1,191 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Will you be my Valentine?</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Will you be my Valentine?</title>
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
-<style>
-:root {
-  --bg1: #ffd6e7;
-  --bg2: #ffeef6;
-  --card: #ffffffcc;
-  --yes: #ff3b7a;
-  --yesHover: #ff1f68;
-}
+  <style>
+    :root {
+      --bg1: #ffd6e7;
+      --bg2: #ffeef6;
+      --card: #ffffffcc;
+      --yes: #ff3b7a;
+      --yesHover: #ff1f68;
+    }
 
-* { box-sizing: border-box; }
+    * { box-sizing: border-box; }
 
-body {
-  margin: 0;
-  min-height: 100svh;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle at top, var(--bg2), var(--bg1));
-  font-family: system-ui, sans-serif;
-  overflow: hidden;
-  padding: 16px;
-}
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+      font-family: system-ui, sans-serif;
+      overflow: hidden;
+      padding: 16px;
+    }
 
-#confettiCanvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-}
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
 
-.card {
-  width: min(720px, 92vw);
-  padding: 26px 22px;
-  background: var(--card);
-  backdrop-filter: blur(10px);
-  border-radius: 22px;
-  text-align: center;
-  box-shadow: 0 18px 60px rgba(0,0,0,.15);
-}
+    .card {
+      width: min(720px, 92vw);
+      padding: 26px 22px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border-radius: 22px;
+      text-align: center;
+      box-shadow: 0 18px 60px rgba(0,0,0,.15);
+    }
 
-h1 {
-  font-size: clamp(26px, 4vw, 44px);
-  margin: 12px 0 18px;
-}
+    .art {
+      width: min(260px, 80vw);
+      margin: 0 auto 10px;
+      display: block;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.12));
+    }
 
-button {
-  padding: 16px 24px;
-  font-size: 18px;
-  font-weight: 800;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  background: var(--yes);
-  color: white;
-  margin-top: 14px;
-}
+    h1 {
+      font-size: clamp(26px, 4vw, 44px);
+      margin: 12px 0 18px;
+    }
 
-button:hover { background: var(--yesHover); }
+    .button-zone {
+      position: relative;
+      width: min(520px, 92%);
+      height: 150px;
+      margin: 0 auto;
+    }
 
-.fireworks {
-  width: min(380px, 90vw);
-  margin: 16px auto;
-  display: block;
-}
+    button {
+      padding: 16px 24px;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,.14);
+      transition: transform .12s ease, background .12s ease;
+    }
 
-/* ---------- ENVELOPE ---------- */
-.envelope {
-  width: 260px;
-  height: 170px;
-  margin: 30px auto 0;
-  position: relative;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 14px 40px rgba(0,0,0,.2);
-  cursor: pointer;
-  overflow: hidden;
-}
+    #yesBtn {
+      position: absolute;
+      left: 18%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--yes);
+      color: white;
+    }
 
-.flap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  background: #ffe4ec;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform-origin: top;
-  transition: transform .6s ease;
-  z-index: 3;
-}
+    #noBtn {
+      position: absolute;
+      left: 62%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #e5e7eb;
+    }
 
-.letter {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: 36px;
-  font-weight: 900;
-  color: var(--yes);
-  transform: translateY(100%);
-  transition: transform .6s ease;
-  z-index: 2;
-}
+    .hint {
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: .7;
+    }
 
-.envelope.open .flap {
-  transform: rotateX(180deg);
-}
+    .result {
+      display: none;
+      margin-top: 18px;
+      animation: pop .35s ease;
+    }
 
-.envelope.open .letter {
-  transform: translateY(0);
-}
-</style>
+    .fireworks {
+      width: min(380px, 90vw);
+      display: block;
+      margin: 0 auto;
+    }
+
+    @keyframes pop {
+      from { transform: scale(.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* ---------- LETTER PAGE ---------- */
+    #letterPage {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+      z-index: 100;
+    }
+
+    #envelope {
+      width: 280px;
+      height: 180px;
+      background: white;
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,.25);
+    }
+
+    .flap {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 50%;
+      background: #f3f4f6;
+      transform-origin: top;
+      transition: transform .6s ease;
+      z-index: 3;
+    }
+
+    .paper {
+      position: absolute;
+      bottom: -100%;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      font-size: 36px;
+      font-weight: 900;
+      color: #ff3b7a;
+      background: white;
+      transition: bottom .7s ease;
+    }
+
+    #envelope.open .flap {
+      transform: rotateX(180deg);
+    }
+
+    #envelope.open .paper {
+      bottom: 0;
+    }
+  </style>
 </head>
 
 <body>
-
 <canvas id="confettiCanvas"></canvas>
 
-<!-- PAGE 1 -->
-<main class="card" id="page1">
-  <h1>Hetanshi will you be my Valentine? 💖</h1>
+<main class="card">
+  <!-- Husky SVG (unchanged) -->
+  <!-- [SVG OMITTED HERE FOR BREVITY — KEEP YOUR ORIGINAL SVG EXACTLY AS IS] -->
 
-  <button onclick="yesClicked()">Yes 💕</button>
+  <h1>Hetanshi will you be my valentine?</h1>
 
-  <div id="result" style="display:none;">
-    <h1>YAY! 🎉</h1>
+  <section class="button-zone" id="zone">
+    <button id="yesBtn">Yes</button>
+    <button id="noBtn">No</button>
+  </section>
+
+  <div class="hint" id="hint">“No” seems a bit shy 😈</div>
+
+  <section class="result" id="result">
+    <h2>YAY! 🎉</h2>
     <img class="fireworks"
-      src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExemxpZGtiejNmYXl2N3ZidDlha2JzYWNyeG9wam44bjAxbDlqNG9qZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/rjkJD1v80CjYs/giphy.gif">
-    <button onclick="goToGift()">I've got a gift for you 🎁</button>
-  </div>
+      src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExemxpZGtiejNmYXl2N3ZidDlha2JzYWNyeG9wam44bjAxbDlqNG9qZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/rjkJD1v80CjYs/giphy.gif"
+    />
+    <br />
+    <button id="giftBtn" style="background:var(--yes);color:white;">
+      I've got a gift for you 🎁
+    </button>
+  </section>
 </main>
 
-<!-- PAGE 2 -->
-<div id="page2" style="display:none;">
+<!-- LETTER PAGE -->
+<div id="letterPage">
   <div class="card">
-    <h1>💌 A Letter For You</h1>
-
-    <div class="envelope" id="envelope" onclick="openEnvelope()">
+    <h2>💌 Open it</h2>
+    <div id="envelope">
       <div class="flap"></div>
-      <div class="letter">Dumbass</div>
+      <div class="paper">Dumbass</div>
     </div>
   </div>
 </div>
 
 <script>
-const canvas = document.getElementById("confettiCanvas");
-const confettiInstance = confetti.create(canvas, { resize: true, useWorker: true });
+  const zone = document.getElementById("zone");
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn = document.getElementById("noBtn");
+  const result = document.getElementById("result");
+  const hint = document.getElementById("hint");
 
-function yesClicked() {
-  document.getElementById("result").style.display = "block";
-  confettiInstance({ particleCount: 200, spread: 120 });
-}
+  const confettiCanvas = document.getElementById("confettiCanvas");
+  const confettiInstance = confetti.create(confettiCanvas, { resize: true });
 
-function goToGift() {
-  document.getElementById("page1").style.display = "none";
-  document.getElementById("page2").style.display = "grid";
-}
+  function fullScreenConfetti() {
+    confettiInstance({ particleCount: 300, spread: 140 });
+  }
 
-function openEnvelope() {
-  const env = document.getElementById("envelope");
-  if (env.classList.contains("open")) return;
+  let yesScale = 1;
+  function growYes() {
+    yesScale += 0.1;
+    yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+  }
 
-  env.classList.add("open");
+  zone.addEventListener("pointermove", () => growYes());
+  noBtn.addEventListener("click", e => e.preventDefault());
 
-  confettiInstance({
-    particleCount: 300,
-    spread: 160,
-    startVelocity: 55,
-    origin: { x: 0.5, y: 0.6 }
+  yesBtn.addEventListener("click", () => {
+    zone.style.display = "none";
+    hint.style.display = "none";
+    result.style.display = "block";
+    fullScreenConfetti();
   });
 
-  setTimeout(() => {
-    confettiInstance({
-      particleCount: 200,
-      spread: 120,
-      origin: { x: Math.random(), y: Math.random() * 0.4 }
-    });
-  }, 300);
-}
-</script>
+  const giftBtn = document.getElementById("giftBtn");
+  const letterPage = document.getElementById("letterPage");
+  const envelope = document.getElementById("envelope");
 
+  giftBtn.addEventListener("click", () => {
+    document.querySelector("main").style.display = "none";
+    letterPage.style.display = "grid";
+  });
+
+  envelope.addEventListener("click", () => {
+    envelope.classList.add("open");
+    fullScreenConfetti();
+  });
+</script>
 </body>
 </html>
+
